@@ -7,250 +7,220 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            background-color: white;
+            color: black;
             margin: 0;
-            padding: 20px;
-            background-color: #ffffff;
-            color: #000000;
+            padding: 0;
         }
-        h1 {
+        header {
+            background-color: black;
+            color: white;
+            padding: 10px;
             text-align: center;
-            font-size: 36px;
-            margin-bottom: 20px;
-            font-weight: 600;
+            font-size: 24px;
         }
         .container {
-            max-width: 1200px;
-            margin: auto;
-        }
-        .search-container {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .search-container input {
-            width: 250px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-        .search-container input:focus {
-            border-color: #000;
+            padding: 20px;
         }
         .strain-list {
             margin-top: 20px;
         }
         .strain-item {
-            padding: 20px;
-            margin: 10px 0;
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.3s, box-shadow 0.3s;
-        }
-        .strain-item:hover {
-            background-color: #f1f1f1;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border: 1px solid black;
+            margin-bottom: 10px;
         }
         .strain-item input {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-            background-color: #fff;
-            transition: border-color 0.3s;
-        }
-        .strain-item input:focus {
-            border-color: #000;
-        }
-        .add-strain-container {
-            margin-top: 40px;
-            text-align: center;
-            border-top: 1px solid #ccc;
-            padding-top: 20px;
-        }
-        .add-strain-container input {
-            width: 250px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-            outline: none;
-            margin-right: 10px;
-        }
-        .add-strain-container button {
-            padding: 10px 20px;
-            background-color: #000;
-            color: #fff;
             border: none;
-            border-radius: 5px;
+            background: none;
+            color: black;
             font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .add-strain-container button:hover {
-            background-color: #444;
-        }
-        .btn {
-            padding: 8px 16px;
-            background-color: #000;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.3s;
-        }
-        .btn:hover {
-            background-color: #444;
-        }
-        .btn:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
+            width: 50%;
         }
         .strain-item button {
-            margin-top: 10px;
+            padding: 5px 10px;
+            border: none;
+            background-color: black;
+            color: white;
+            cursor: pointer;
+        }
+        .strain-item button:hover {
+            background-color: gray;
+        }
+        .search-bar {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid black;
+            font-size: 16px;
         }
     </style>
 </head>
 <body>
+    <header>
+        Strain Tracker
+    </header>
     <div class="container">
-        <h1>Strain Tracker</h1>
+        <input type="text" id="searchInput" class="search-bar" onkeyup="filterStrains()" placeholder="Search for strains...">
+        <button onclick="addStrain()">Add New Strain</button>
 
-        <!-- Search Bar -->
-        <div class="search-container">
-            <input type="text" id="searchStrain" placeholder="Search Strain" oninput="filterStrains()">
-        </div>
-
-        <!-- List of Strains -->
-        <div class="strain-list" id="strainList">
-            <!-- Strain items will be listed here -->
-        </div>
-
-        <!-- Add New Strain Form -->
-        <div class="add-strain-container">
-            <h3>Add a New Strain</h3>
-            <input type="text" id="newStrainName" placeholder="Strain Name" required>
-            <button class="btn" onclick="addNewStrain()">Add Strain</button>
-        </div>
+        <div id="strainList" class="strain-list"></div>
     </div>
 
     <script>
-        // Store all strains
-        let strains = [];
-
-        // Initialize strains data (can be replaced with database or more complex system)
-        const defaultStrains = [
-            { name: 'Peach Exodus Cheese', code: 'PEC-K3F1-EC8J9-20241201', description: 'Phenotype 1 description here.' },
-            { name: 'Original Exodus Cheese', code: 'OEC-K1F1-EC8J9-20241201', description: 'Phenotype 1 description here.' },
-            { name: 'Blueberry Diesel', code: 'BD-K2F1-EC8J9-20241201', description: 'Phenotype 1 description here.' },
-            // Add all other 59 strains here...
+        const strains = [
+            { id: 1, name: 'Peach Exodus Cheese #1', code: 'PEC-RT83', shortCode: 'RT83' },
+            { id: 2, name: 'Peach Exodus Cheese #2', code: 'PEC-MP74', shortCode: 'MP74' },
+            { id: 3, name: 'Peach Exodus Cheese #3', code: 'PEC-XY92', shortCode: 'XY92' },
+            { id: 4, name: 'S1 Original Exodus Cheese #1', code: 'S1-OEC-WD24', shortCode: 'WD24' },
+            { id: 5, name: 'S1 Original Exodus Cheese #2', code: 'S1-OEC-UR81', shortCode: 'UR81' },
+            { id: 6, name: 'S1 Original Exodus Cheese #3', code: 'S1-OEC-QK91', shortCode: 'QK91' },
+            { id: 7, name: 'S1 Original Exodus Cheese #4', code: 'S1-OEC-PT33', shortCode: 'PT33' },
+            { id: 8, name: 'S1 Original Exodus Cheese #5', code: 'S1-OEC-VA76', shortCode: 'VA76' },
+            { id: 9, name: 'S1 Original Exodus Cheese #6', code: 'S1-OEC-AD62', shortCode: 'AD62' },
+            { id: 10, name: 'S1 Original Exodus Cheese #7', code: 'S1-OEC-FB41', shortCode: 'FB41' },
+            { id: 11, name: 'S1 Original Exodus Cheese #8', code: 'S1-OEC-ZN98', shortCode: 'ZN98' },
+            { id: 12, name: 'S1 Original Exodus Cheese #9', code: 'S1-OEC-PL58', shortCode: 'PL58' },
+            { id: 13, name: 'Random Seed #1', code: 'RS-VA14', shortCode: 'VA14' },
+            { id: 14, name: 'Random Seed #2', code: 'RS-UK77', shortCode: 'UK77' },
+            { id: 15, name: 'Random Seed #3', code: 'RS-FG19', shortCode: 'FG19' },
+            { id: 16, name: 'Blueberry Diesel #1', code: 'BD-DF73', shortCode: 'DF73' },
+            { id: 17, name: 'Blueberry Diesel #2', code: 'BD-AG45', shortCode: 'AG45' },
+            { id: 18, name: 'Blueberry Diesel #3', code: 'BD-QW29', shortCode: 'QW29' },
+            { id: 19, name: 'Blueberry Diesel #4', code: 'BD-RY88', shortCode: 'RY88' },
+            { id: 20, name: 'Blueberry Diesel #5', code: 'BD-NK99', shortCode: 'NK99' },
+            { id: 21, name: 'Blueberry Diesel #6', code: 'BD-JA31', shortCode: 'JA31' },
+            { id: 22, name: 'Blueberry Diesel #7', code: 'BD-LO67', shortCode: 'LO67' },
+            { id: 23, name: 'Blueberry Diesel #8', code: 'BD-PQ24', shortCode: 'PQ24' },
+            { id: 24, name: 'Blueberry Diesel #9', code: 'BD-SC81', shortCode: 'SC81' },
+            { id: 25, name: 'Blueberry Diesel #10', code: 'BD-WE12', shortCode: 'WE12' },
+            { id: 26, name: 'Original Exodus Cheese #1', code: 'OEC-RT42', shortCode: 'RT42' },
+            { id: 27, name: 'Original Exodus Cheese #2', code: 'OEC-KG52', shortCode: 'KG52' },
+            { id: 28, name: 'Original Exodus Cheese #3', code: 'OEC-LM66', shortCode: 'LM66' },
+            { id: 29, name: 'Original Exodus Cheese #4', code: 'OEC-NV11', shortCode: 'NV11' },
+            { id: 30, name: 'Original Exodus Cheese #5', code: 'OEC-BR88', shortCode: 'BR88' },
+            { id: 31, name: 'Original Exodus Cheese #6', code: 'OEC-YZ35', shortCode: 'YZ35' },
+            { id: 32, name: 'Original Exodus Cheese #7', code: 'OEC-VS21', shortCode: 'VS21' },
+            { id: 33, name: 'Original Exodus Cheese #8', code: 'OEC-MR75', shortCode: 'MR75' },
+            { id: 34, name: 'Original Exodus Cheese #9', code: 'OEC-NR62', shortCode: 'NR62' },
+            { id: 35, name: 'Original Exodus Cheese #10', code: 'OEC-CT45', shortCode: 'CT45' },
+            { id: 36, name: 'Original Exodus Cheese #11', code: 'OEC-UE33', shortCode: 'UE33' },
+            { id: 37, name: 'Original Exodus Cheese #12', code: 'OEC-KT23', shortCode: 'KT23' },
+            { id: 38, name: 'Original Exodus Cheese #13', code: 'OEC-WZ19', shortCode: 'WZ19' },
+            { id: 39, name: 'Original Exodus Cheese #14', code: 'OEC-FB54', shortCode: 'FB54' },
+            { id: 40, name: 'Original Exodus Cheese #15', code: 'OEC-VX91', shortCode: 'VX91' },
+            { id: 41, name: 'Original Exodus Cheese #16', code: 'OEC-LO43', shortCode: 'LO43' },
+            { id: 42, name: 'Original Exodus Cheese #17', code: 'OEC-GT67', shortCode: 'GT67' },
+            { id: 43, name: 'Original Exodus Cheese #18', code: 'OEC-QY56', shortCode: 'QY56' },
+            { id: 44, name: 'Original Exodus Cheese #19', code: 'OEC-XR12', shortCode: 'XR12' },
+            { id: 45, name: 'Original Exodus Cheese #20', code: 'OEC-KY80', shortCode: 'KY80' },
+            { id: 46, name: 'Original Exodus Cheese #21', code: 'OEC-NX77', shortCode: 'NX77' },
+            { id: 47, name: 'Original Exodus Cheese #22', code: 'OEC-ZW60', shortCode: 'ZX60' }'
+            { id: 48, name: 'Original Exodus Cheese #23', code: 'OEC-JP72', shortCode: 'JP72' },
+            { id: 49, name: 'Original Exodus Cheese #24', code: 'OEC-BK41', shortCode: 'BK41' },
+            { id: 50, name: 'Original Exodus Cheese #25', code: 'OEC-TH33', shortCode: 'TH33' },
+            { id: 51, name: 'Original Exodus Cheese #26', code: 'OEC-LK59', shortCode: 'LK59' },
+            { id: 52, name: 'Original Exodus Cheese #27', code: 'OEC-WD84', shortCode: 'WD84' },
+            { id: 53, name: 'Original Exodus Cheese #28', code: 'OEC-RY51', shortCode: 'RY51' },
+            { id: 54, name: 'Original Exodus Cheese #29', code: 'OEC-ZM23', shortCode: 'ZM23' },
+            { id: 55, name: 'Original Exodus Cheese #30', code: 'OEC-FP67', shortCode: 'FP67' },
+            { id: 56, name: 'Original Exodus Cheese #31', code: 'OEC-EX22', shortCode: 'EX22' },
+            { id: 57, name: 'Original Exodus Cheese #32', code: 'OEC-PR98', shortCode: 'PR98' },
+            { id: 58, name: 'Original Exodus Cheese #33', code: 'OEC-CT40', shortCode: 'CT40' },
+            { id: 59, name: 'Original Exodus Cheese #34', code: 'OEC-UL19', shortCode: 'UL19' }
         ];
 
-        // Load strains from localStorage if available
-        function loadStrains() {
-            const savedStrains = localStorage.getItem('strains');
-            if (savedStrains) {
-                strains = JSON.parse(savedStrains);
-            } else {
-                strains = defaultStrains;
-            }
-            displayStrains();
-        }
-
-        // Display strains list
+        // Function to display strains in the list
         function displayStrains() {
-            const strainList = document.getElementById('strainList');
-            strainList.innerHTML = ''; // Clear current list
-
-            strains.forEach((strain, index) => {
-                const strainDiv = document.createElement('div');
-                strainDiv.classList.add('strain-item');
-                strainDiv.innerHTML = `
-                    <strong>${strain.name}</strong><br>
-                    <label>Code: </label><input type="text" value="${strain.code}" onchange="updateStrainCode(${index}, this.value)"><br>
-                    <label>Description: </label><input type="text" value="${strain.description}" onchange="updateStrainDescription(${index}, this.value)"><br>
-                    <button class="btn" onclick="deleteStrain(${index})">Delete</button>
-                `;
-                strainList.appendChild(strainDiv);
-            });
-        }
-
-        // Filter strains based on search input
-        function filterStrains() {
-            const searchTerm = document.getElementById('searchStrain').value.toLowerCase();
-            const filteredStrains = strains.filter(strain => strain.name.toLowerCase().includes(searchTerm));
-            displayFilteredStrains(filteredStrains);
-        }
-
-        // Display filtered strains
-        function displayFilteredStrains(filteredStrains) {
             const strainList = document.getElementById('strainList');
             strainList.innerHTML = '';
 
-            filteredStrains.forEach((strain, index) => {
-                const strainDiv = document.createElement('div');
-                strainDiv.classList.add('strain-item');
-                strainDiv.innerHTML = `
-                    <strong>${strain.name}</strong><br>
-                    <label>Code: </label><input type="text" value="${strain.code}" onchange="updateStrainCode(${index}, this.value)"><br>
-                    <label>Description: </label><input type="text" value="${strain.description}" onchange="updateStrainDescription(${index}, this.value)"><br>
-                    <button class="btn" onclick="deleteStrain(${index})">Delete</button>
+            for (const strain of strains) {
+                const strainItem = document.createElement('div');
+                strainItem.classList.add('strain-item');
+                strainItem.innerHTML = `
+                    <input type="text" value="${strain.name}" onchange="editStrain(${strain.id}, 'name', this.value)">
+                    <input type="text" value="${strain.code}" onchange="editStrain(${strain.id}, 'code', this.value)">
+                    <input type="text" value="${strain.shortCode}" onchange="editStrain(${strain.id}, 'shortCode', this.value)">
+                    <button onclick="deleteStrain(${strain.id})">Delete</button>
                 `;
-                strainList.appendChild(strainDiv);
-            });
-        }
-
-        // Update strain code
-        function updateStrainCode(index, newCode) {
-            strains[index].code = newCode;
-            saveStrains();
-        }
-
-        // Update strain description
-        function updateStrainDescription(index, newDescription) {
-            strains[index].description = newDescription;
-            saveStrains();
-        }
-
-        // Delete strain
-        function deleteStrain(index) {
-            strains.splice(index, 1);
-            saveStrains();
-            displayStrains();
-        }
-
-        // Add new strain
-        function addNewStrain() {
-            const newStrainName = document.getElementById('newStrainName').value;
-            if (newStrainName) {
-                const newCode = generateCode(newStrainName);
-                const newStrain = { name: newStrainName, code: newCode, description: 'New strain description.' };
-                strains.push(newStrain);
-                saveStrains();
-                displayStrains();
-                document.getElementById('newStrainName').value = ''; // Clear input field
+                strainList.appendChild(strainItem);
             }
         }
 
-        // Generate a code for the new strain (simplified logic)
-        function generateCode(strainName) {
-            const timestamp = new Date().toISOString().split('T')[0].replace(/-/g, '');
-            return `${strainName.substring(0, 3).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}-${timestamp}`;
+        // Function to edit a strain's details
+        function editStrain(id, field, value) {
+            const strain = strains.find(strain => strain.id === id);
+            if (strain) {
+                strain[field] = value;
+                saveStrains();
+            }
         }
 
-        // Save strains
-              // Save strains to localStorage
+        // Function to delete a strain
+        function deleteStrain(id) {
+            const strainIndex = strains.findIndex(strain => strain.id === id);
+            if (strainIndex !== -1) {
+                strains.splice(strainIndex, 1);
+                saveStrains();
+            }
+        }
+
+        // Function to add a new strain
+        function addStrain() {
+            const newStrain = {
+                id: strains.length + 1,
+                name: 'New Strain',
+                code: 'New Code',
+                shortCode: 'New Short Code'
+            };
+            strains.push(newStrain);
+            saveStrains();
+        }
+
+        // Function to save strains to localStorage
         function saveStrains() {
             localStorage.setItem('strains', JSON.stringify(strains));
+            displayStrains();
         }
 
-        // Load strains when the page is loaded
+        // Function to load strains from localStorage
+        function loadStrains() {
+            const savedStrains = localStorage.getItem('strains');
+            if (savedStrains) {
+                strains.length = 0; // Clear the current array
+                strains.push(...JSON.parse(savedStrains)); // Load saved strains
+            }
+            displayStrains();
+        }
+
+        // Function to filter strains based on search input
+        function filterStrains() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filteredStrains = strains.filter(strain => 
+                strain.name.toLowerCase().includes(searchTerm) || 
+                strain.code.toLowerCase().includes(searchTerm) ||
+                strain.shortCode.toLowerCase().includes(searchTerm)
+            );
+            const strainList = document.getElementById('strainList');
+            strainList.innerHTML = '';
+
+            for (const strain of filteredStrains) {
+                const strainItem = document.createElement('div');
+                strainItem.classList.add('strain-item');
+                strainItem.innerHTML = `
+                    <input type="text" value="${strain.name}" onchange="editStrain(${strain.id}, 'name', this.value)">
+                    <input type="text" value="${strain.code}" onchange="editStrain(${strain.id}, 'code', this.value)">
+                    <input type="text" value="${strain.shortCode}" onchange="editStrain(${strain.id}, 'shortCode', this.value)">
+                    <button onclick="deleteStrain(${strain.id})">Delete</button>
+                `;
+                strainList.appendChild(strainItem);
+            }
+        }
+
+        // Load strains on page load
         window.onload = loadStrains;
     </script>
 </body>
