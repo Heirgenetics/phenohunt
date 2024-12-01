@@ -65,6 +65,10 @@
         .edit-button {
             background-color: #ff9800;
         }
+        .phenotype {
+            font-style: italic;
+            color: #a3a3a3;
+        }
     </style>
 </head>
 <body>
@@ -78,6 +82,7 @@
                     <th>#</th>
                     <th>Strain Name</th>
                     <th>Code</th>
+                    <th>Phenotypic Traits</th>
                     <th>Date Added</th>
                     <th>Actions</th>
                 </tr>
@@ -89,6 +94,14 @@
     <script>
         let strainNumber = 1; // Tracks the numbering for the current strain
         let lastStrainName = ""; // Tracks the last entered strain name
+
+        // Phenotypic traits explanations for the codes
+        const phenotypicTraits = {
+            "A1": "Strong bud structure, thick resin coverage.",
+            "B2": "High yield with balanced THC/CBD levels.",
+            "C3": "Fragrant with sweet and floral aroma.",
+            "D4": "Fast flowering, resistant to pests and diseases."
+        };
 
         function generateRandomCode() {
             const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -118,6 +131,10 @@
             const randomCode = generateRandomCode();
             const fullCode = `${prefix}-${randomCode}`;
 
+            // Get the phenotypic traits based on the generated code
+            const phenotypeKey = fullCode.slice(4, 6); // Take the 5th and 6th characters of the code
+            const phenotypeDescription = phenotypicTraits[phenotypeKey] || "No description available.";
+
             // Get the current date
             const dateAdded = new Date().toLocaleDateString();
 
@@ -128,6 +145,7 @@
                 <td>${strainNumber}</td>
                 <td>${strainNameInput}</td>
                 <td>${fullCode}</td>
+                <td class="phenotype">${phenotypeDescription}</td>
                 <td>${dateAdded}</td>
                 <td class="action-buttons">
                     <button class="edit-button" onclick="editStrain(this)">Edit</button>
@@ -159,7 +177,9 @@
                 strainNameCell.textContent = newStrainName.trim();
                 const newCode = generateRandomCode();
                 row.cells[2].textContent = `${newStrainName.trim().substring(0, 3).toUpperCase()}-${newCode}`;
-                row.cells[3].textContent = new Date().toLocaleDateString();
+                const phenotypeKey = newCode.slice(4, 6);
+                row.cells[3].textContent = phenotypicTraits[phenotypeKey] || "No description available.";
+                row.cells[4].textContent = new Date().toLocaleDateString();
             }
         }
     </script>
