@@ -6,133 +6,100 @@
     <title>Strain Tracker</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: white;
-            color: black;
+            background-color: #121212;
+            color: #ffffff;
+            font-family: 'Courier New', Courier, monospace;
             margin: 0;
             padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
-        header {
-            background-color: black;
-            color: white;
-            padding: 10px;
+
+        h1 {
+            font-size: 2rem;
             text-align: center;
-            font-size: 24px;
+            margin: 20px 0;
         }
+
+        input, button {
+            background-color: #1e1e1e;
+            color: #ffffff;
+            border: 1px solid #444;
+            padding: 10px;
+            margin: 5px;
+            font-size: 1rem;
+        }
+
+        input:focus, button:hover {
+            outline: none;
+            background-color: #333;
+        }
+
+        .strain-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #333;
+            padding: 10px;
+        }
+
+        .strain-symbol {
+            font-size: 1.5rem;
+            margin-right: 10px;
+        }
+
         .container {
-            padding: 20px;
+            width: 90%;
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: left;
         }
+
         .strain-list {
             margin-top: 20px;
         }
-        .strain-item {
+
+        .strain-list div {
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            padding: 10px;
-            border: 1px solid black;
-            margin-bottom: 10px;
         }
-        .strain-item input {
-            border: none;
-            background: none;
-            color: black;
-            font-size: 16px;
-            width: 50%;
-        }
-        .strain-item button {
-            padding: 5px 10px;
-            border: none;
-            background-color: black;
-            color: white;
-            cursor: pointer;
-        }
-        .strain-item button:hover {
-            background-color: gray;
-        }
-        .search-bar {
+
+        #searchInput {
             width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid black;
-            font-size: 16px;
+        }
+
+        .add-button {
+            display: block;
+            margin: 20px auto;
         }
     </style>
 </head>
 <body>
-    <header>
-        Strain Tracker
-    </header>
+    <h1>Strain Tracker</h1>
     <div class="container">
-        <input type="text" id="searchInput" class="search-bar" onkeyup="filterStrains()" placeholder="Search for strains...">
-        <button onclick="addStrain()">Add New Strain</button>
-
+        <input type="text" id="searchInput" placeholder="Search strains..." oninput="filterStrains()">
         <div id="strainList" class="strain-list"></div>
+        <button class="add-button" onclick="addStrain()">Add New Strain</button>
     </div>
 
     <script>
         const strains = [
-            { id: 1, name: 'Peach Exodus Cheese #1', code: 'PEC-RT83', shortCode: 'RT83' },
-            { id: 2, name: 'Peach Exodus Cheese #2', code: 'PEC-MP74', shortCode: 'MP74' },
-            { id: 3, name: 'Peach Exodus Cheese #3', code: 'PEC-XY92', shortCode: 'XY92' },
-            { id: 4, name: 'S1 Original Exodus Cheese #1', code: 'S1-OEC-WD24', shortCode: 'WD24' },
-            { id: 5, name: 'S1 Original Exodus Cheese #2', code: 'S1-OEC-UR81', shortCode: 'UR81' },
-            { id: 6, name: 'S1 Original Exodus Cheese #3', code: 'S1-OEC-QK91', shortCode: 'QK91' },
-            { id: 7, name: 'S1 Original Exodus Cheese #4', code: 'S1-OEC-PT33', shortCode: 'PT33' },
-            { id: 8, name: 'S1 Original Exodus Cheese #5', code: 'S1-OEC-VA76', shortCode: 'VA76' },
-            { id: 9, name: 'S1 Original Exodus Cheese #6', code: 'S1-OEC-AD62', shortCode: 'AD62' },
-            { id: 10, name: 'S1 Original Exodus Cheese #7', code: 'S1-OEC-FB41', shortCode: 'FB41' },
-            { id: 11, name: 'S1 Original Exodus Cheese #8', code: 'S1-OEC-ZN98', shortCode: 'ZN98' },
-            { id: 12, name: 'S1 Original Exodus Cheese #9', code: 'S1-OEC-PL58', shortCode: 'PL58' },
-            { id: 13, name: 'Random Seed #1', code: 'RS-VA14', shortCode: 'VA14' },
-            { id: 14, name: 'Random Seed #2', code: 'RS-UK77', shortCode: 'UK77' },
-            { id: 15, name: 'Random Seed #3', code: 'RS-FG19', shortCode: 'FG19' },
-            { id: 16, name: 'Blueberry Diesel #1', code: 'BD-DF73', shortCode: 'DF73' },
-            { id: 17, name: 'Blueberry Diesel #2', code: 'BD-AG45', shortCode: 'AG45' },
-            { id: 18, name: 'Blueberry Diesel #3', code: 'BD-QW29', shortCode: 'QW29' },
-            { id: 19, name: 'Blueberry Diesel #4', code: 'BD-RY88', shortCode: 'RY88' },
-            { id: 20, name: 'Blueberry Diesel #5', code: 'BD-NK99', shortCode: 'NK99' },
-            { id: 21, name: 'Blueberry Diesel #6', code: 'BD-JA31', shortCode: 'JA31' },
-            { id: 22, name: 'Blueberry Diesel #7', code: 'BD-LO67', shortCode: 'LO67' },
-            { id: 23, name: 'Blueberry Diesel #8', code: 'BD-PQ24', shortCode: 'PQ24' },
-            { id: 24, name: 'Blueberry Diesel #9', code: 'BD-SC81', shortCode: 'SC81' },
-            { id: 25, name: 'Blueberry Diesel #10', code: 'BD-WE12', shortCode: 'WE12' },
-            { id: 26, name: 'Original Exodus Cheese #1', code: 'OEC-RT42', shortCode: 'RT42' },
-            { id: 27, name: 'Original Exodus Cheese #2', code: 'OEC-KG52', shortCode: 'KG52' },
-            { id: 28, name: 'Original Exodus Cheese #3', code: 'OEC-LM66', shortCode: 'LM66' },
-            { id: 29, name: 'Original Exodus Cheese #4', code: 'OEC-NV11', shortCode: 'NV11' },
-            { id: 30, name: 'Original Exodus Cheese #5', code: 'OEC-BR88', shortCode: 'BR88' },
-            { id: 31, name: 'Original Exodus Cheese #6', code: 'OEC-YZ35', shortCode: 'YZ35' },
-            { id: 32, name: 'Original Exodus Cheese #7', code: 'OEC-VS21', shortCode: 'VS21' },
-            { id: 33, name: 'Original Exodus Cheese #8', code: 'OEC-MR75', shortCode: 'MR75' },
-            { id: 34, name: 'Original Exodus Cheese #9', code: 'OEC-NR62', shortCode: 'NR62' },
-            { id: 35, name: 'Original Exodus Cheese #10', code: 'OEC-CT45', shortCode: 'CT45' },
-            { id: 36, name: 'Original Exodus Cheese #11', code: 'OEC-UE33', shortCode: 'UE33' },
-            { id: 37, name: 'Original Exodus Cheese #12', code: 'OEC-KT23', shortCode: 'KT23' },
-            { id: 38, name: 'Original Exodus Cheese #13', code: 'OEC-WZ19', shortCode: 'WZ19' },
-            { id: 39, name: 'Original Exodus Cheese #14', code: 'OEC-FB54', shortCode: 'FB54' },
-            { id: 40, name: 'Original Exodus Cheese #15', code: 'OEC-VX91', shortCode: 'VX91' },
-            { id: 41, name: 'Original Exodus Cheese #16', code: 'OEC-LO43', shortCode: 'LO43' },
-            { id: 42, name: 'Original Exodus Cheese #17', code: 'OEC-GT67', shortCode: 'GT67' },
-            { id: 43, name: 'Original Exodus Cheese #18', code: 'OEC-QY56', shortCode: 'QY56' },
-            { id: 44, name: 'Original Exodus Cheese #19', code: 'OEC-XR12', shortCode: 'XR12' },
-            { id: 45, name: 'Original Exodus Cheese #20', code: 'OEC-KY80', shortCode: 'KY80' },
-            { id: 46, name: 'Original Exodus Cheese #21', code: 'OEC-NX77', shortCode: 'NX77' },
-            { id: 47, name: 'Original Exodus Cheese #22', code: 'OEC-ZW60', shortCode: 'ZX60' }'
-            { id: 48, name: 'Original Exodus Cheese #23', code: 'OEC-JP72', shortCode: 'JP72' },
-            { id: 49, name: 'Original Exodus Cheese #24', code: 'OEC-BK41', shortCode: 'BK41' },
-            { id: 50, name: 'Original Exodus Cheese #25', code: 'OEC-TH33', shortCode: 'TH33' },
-            { id: 51, name: 'Original Exodus Cheese #26', code: 'OEC-LK59', shortCode: 'LK59' },
-            { id: 52, name: 'Original Exodus Cheese #27', code: 'OEC-WD84', shortCode: 'WD84' },
-            { id: 53, name: 'Original Exodus Cheese #28', code: 'OEC-RY51', shortCode: 'RY51' },
-            { id: 54, name: 'Original Exodus Cheese #29', code: 'OEC-ZM23', shortCode: 'ZM23' },
-            { id: 55, name: 'Original Exodus Cheese #30', code: 'OEC-FP67', shortCode: 'FP67' },
-            { id: 56, name: 'Original Exodus Cheese #31', code: 'OEC-EX22', shortCode: 'EX22' },
-            { id: 57, name: 'Original Exodus Cheese #32', code: 'OEC-PR98', shortCode: 'PR98' },
-            { id: 58, name: 'Original Exodus Cheese #33', code: 'OEC-CT40', shortCode: 'CT40' },
-            { id: 59, name: 'Original Exodus Cheese #34', code: 'OEC-UL19', shortCode: 'UL19' }
+            { id: 1, name: 'Peach Exodus Cheese #1', code: 'PEC-FN78', symbol: '🍑' },
+            { id: 2, name: 'Peach Exodus Cheese #2', code: 'PEC-VL65', symbol: '🍑' },
+            { id: 3, name: 'Peach Exodus Cheese #3', code: 'PEC-RW48', symbol: '🍑' },
+            { id: 4, name: 'Random Seed #1', code: 'RND-SP34', symbol: '❓' },
+            { id: 5, name: 'Random Seed #2', code: 'RND-BL92', symbol: '❓' },
+            { id: 6, name: 'Random Seed #3', code: 'RND-LX73', symbol: '❓' },
+            { id: 7, name: 'Blueberry Diesel', code: 'BBD-DF45', symbol: '🔵' },
+            { id: 8, name: 'Original Exodus Cheese #1', code: 'OEC-MP81', symbol: '🧀' },
+            { id: 9, name: 'Original Exodus Cheese #2', code: 'OEC-VG47', symbol: '🧀' },
+            { id: 10, name: 'Original Exodus Cheese #3', code: 'OEC-ZB13', symbol: '🧀' },
+            // Add all other strains here, numbered consecutively up to #59
         ];
 
-        // Function to display strains in the list
         function displayStrains() {
             const strainList = document.getElementById('strainList');
             strainList.innerHTML = '';
@@ -141,16 +108,15 @@
                 const strainItem = document.createElement('div');
                 strainItem.classList.add('strain-item');
                 strainItem.innerHTML = `
+                    <span class="strain-symbol">${strain.symbol}</span>
                     <input type="text" value="${strain.name}" onchange="editStrain(${strain.id}, 'name', this.value)">
                     <input type="text" value="${strain.code}" onchange="editStrain(${strain.id}, 'code', this.value)">
-                    <input type="text" value="${strain.shortCode}" onchange="editStrain(${strain.id}, 'shortCode', this.value)">
                     <button onclick="deleteStrain(${strain.id})">Delete</button>
                 `;
                 strainList.appendChild(strainItem);
             }
         }
 
-        // Function to edit a strain's details
         function editStrain(id, field, value) {
             const strain = strains.find(strain => strain.id === id);
             if (strain) {
@@ -159,50 +125,30 @@
             }
         }
 
-        // Function to delete a strain
         function deleteStrain(id) {
-            const strainIndex = strains.findIndex(strain => strain.id === id);
-            if (strainIndex !== -1) {
-                strains.splice(strainIndex, 1);
+            const index = strains.findIndex(strain => strain.id === id);
+            if (index !== -1) {
+                strains.splice(index, 1);
                 saveStrains();
             }
         }
 
-        // Function to add a new strain
         function addStrain() {
             const newStrain = {
                 id: strains.length + 1,
                 name: 'New Strain',
-                code: 'New Code',
-                shortCode: 'New Short Code'
+                code: `NEW-${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
+                symbol: '🌱'
             };
             strains.push(newStrain);
             saveStrains();
         }
 
-        // Function to save strains to localStorage
-        function saveStrains() {
-            localStorage.setItem('strains', JSON.stringify(strains));
-            displayStrains();
-        }
-
-        // Function to load strains from localStorage
-        function loadStrains() {
-            const savedStrains = localStorage.getItem('strains');
-            if (savedStrains) {
-                strains.length = 0; // Clear the current array
-                strains.push(...JSON.parse(savedStrains)); // Load saved strains
-            }
-            displayStrains();
-        }
-
-        // Function to filter strains based on search input
         function filterStrains() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const filteredStrains = strains.filter(strain => 
-                strain.name.toLowerCase().includes(searchTerm) || 
-                strain.code.toLowerCase().includes(searchTerm) ||
-                strain.shortCode.toLowerCase().includes(searchTerm)
+                strain.name.toLowerCase().includes(searchTerm) ||
+                strain.code.toLowerCase().includes(searchTerm)
             );
             const strainList = document.getElementById('strainList');
             strainList.innerHTML = '';
@@ -211,16 +157,29 @@
                 const strainItem = document.createElement('div');
                 strainItem.classList.add('strain-item');
                 strainItem.innerHTML = `
+                    <span class="strain-symbol">${strain.symbol}</span>
                     <input type="text" value="${strain.name}" onchange="editStrain(${strain.id}, 'name', this.value)">
                     <input type="text" value="${strain.code}" onchange="editStrain(${strain.id}, 'code', this.value)">
-                    <input type="text" value="${strain.shortCode}" onchange="editStrain(${strain.id}, 'shortCode', this.value)">
                     <button onclick="deleteStrain(${strain.id})">Delete</button>
                 `;
                 strainList.appendChild(strainItem);
             }
         }
 
-        // Load strains on page load
+        function saveStrains() {
+            localStorage.setItem('strains', JSON.stringify(strains));
+            displayStrains();
+        }
+
+        function loadStrains() {
+            const savedStrains = localStorage.getItem('strains');
+            if (savedStrains) {
+                strains.length = 0;
+                strains.push(...JSON.parse(savedStrains));
+            }
+            displayStrains();
+        }
+
         window.onload = loadStrains;
     </script>
 </body>
