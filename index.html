@@ -95,12 +95,16 @@
         let strainNumber = 1; // Tracks the numbering for the current strain
         let lastStrainName = ""; // Tracks the last entered strain name
 
-        // Phenotypic traits explanations for the codes
+        // Phenotypic traits explanations for random codes
         const phenotypicTraits = {
             "A1": "Strong bud structure, thick resin coverage.",
             "B2": "High yield with balanced THC/CBD levels.",
             "C3": "Fragrant with sweet and floral aroma.",
-            "D4": "Fast flowering, resistant to pests and diseases."
+            "D4": "Fast flowering, resistant to pests and diseases.",
+            "E5": "Dense buds with earthy aroma.",
+            "F6": "Vibrant color, compact growth.",
+            "G7": "Lively aroma, energizing effects.",
+            "H8": "High THC content, potent effects."
         };
 
         function generateRandomCode() {
@@ -131,7 +135,7 @@
             const randomCode = generateRandomCode();
             const fullCode = `${prefix}-${randomCode}`;
 
-            // Get the phenotypic traits based on the generated code
+            // Get the phenotypic traits based on the generated code (use last 2 characters of the code)
             const phenotypeKey = fullCode.slice(4, 6); // Take the 5th and 6th characters of the code
             const phenotypeDescription = phenotypicTraits[phenotypeKey] || "No description available.";
 
