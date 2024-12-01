@@ -171,20 +171,31 @@
             // Get the row to be edited
             const row = button.closest("tr");
             const strainNameCell = row.cells[1];
+            const strainCodeCell = row.cells[2];
+            const phenotypeCell = row.cells[3];
+
             const strainName = strainNameCell.textContent;
+            const strainCode = strainCodeCell.textContent;
+            const phenotype = phenotypeCell.textContent;
 
-            // Prompt user for a new strain name
+            // Prompt user for new values
             const newStrainName = prompt("Edit Strain Name:", strainName);
-
             if (newStrainName && newStrainName.trim() !== strainName) {
-                // Update the strain name and regenerate the code
                 strainNameCell.textContent = newStrainName.trim();
-                const newCode = generateRandomCode();
-                row.cells[2].textContent = `${newStrainName.trim().substring(0, 3).toUpperCase()}-${newCode}`;
-                const phenotypeKey = newCode.slice(4, 6);
-                row.cells[3].textContent = phenotypicTraits[phenotypeKey] || "No description available.";
-                row.cells[4].textContent = new Date().toLocaleDateString();
             }
+
+            // Re-generate the code based on the new strain name
+            const prefix = newStrainName.trim().split(" ").map(word => word[0]).join("").toUpperCase().substring(0, 3);
+            const randomCode = generateRandomCode();
+            const fullCode = `${prefix}-${randomCode}`;
+            strainCodeCell.textContent = fullCode;
+
+            // Get the phenotypic traits based on the regenerated code
+            const phenotypeKey = fullCode.slice(4, 6); // Take the 5th and 6th characters of the code
+            phenotypeCell.textContent = phenotypicTraits[phenotypeKey] || "No description available.";
+
+            // Update the date added
+            row.cells[4].textContent = new Date().toLocaleDateString();
         }
     </script>
 </body>
