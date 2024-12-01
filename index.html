@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strain Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #ffffff;
+            color: #000000;
+        }
+        h1 {
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+        }
+        .search-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .search-container input {
+            width: 250px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .search-container input:focus {
+            border-color: #000;
+        }
+        .strain-list {
+            margin-top: 20px;
+        }
+        .strain-item {
+            padding: 20px;
+            margin: 10px 0;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+        .strain-item:hover {
+            background-color: #f1f1f1;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+        .strain-item input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            background-color: #fff;
+            transition: border-color 0.3s;
+        }
+        .strain-item input:focus {
+            border-color: #000;
+        }
+        .add-strain-container {
+            margin-top: 40px;
+            text-align: center;
+            border-top: 1px solid #ccc;
+            padding-top: 20px;
+        }
+        .add-strain-container input {
+            width: 250px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            outline: none;
+            margin-right: 10px;
+        }
+        .add-strain-container button {
+            padding: 10px 20px;
+            background-color: #000;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .add-strain-container button:hover {
+            background-color: #444;
+        }
+        .btn {
+            padding: 8px 16px;
+            background-color: #000;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #444;
+        }
+        .btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .strain-item button {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Strain Tracker</h1>
+
+        <!-- Search Bar -->
+        <div class="search-container">
+            <input type="text" id="searchStrain" placeholder="Search Strain" oninput="filterStrains()">
+        </div>
+
+        <!-- List of Strains -->
+        <div class="strain-list" id="strainList">
+            <!-- Strain items will be listed here -->
+        </div>
+
+        <!-- Add New Strain Form -->
+        <div class="add-strain-container">
+            <h3>Add a New Strain</h3>
+            <input type="text" id="newStrainName" placeholder="Strain Name" required>
+            <button class="btn" onclick="addNewStrain()">Add Strain</button>
+        </div>
+    </div>
+
+    <script>
+        // Store all strains
+        let strains = [];
+
+        // Initialize strains data (can be replaced with database or more complex system)
+        const defaultStrains = [
+            { name: 'Peach Exodus Cheese', code: 'PEC-K3F1-EC8J9-20241201', description: 'Phenotype 1 description here.' },
+            { name: 'Original Exodus Cheese', code: 'OEC-K1F1-EC8J9-20241201', description: 'Phenotype 1 description here.' },
+            { name: 'Blueberry Diesel', code: 'BD-K2F1-EC8J9-20241201', description: 'Phenotype 1 description here.' },
+            // Add all other 59 strains here...
+        ];
+
+        // Load strains from localStorage if available
+        function loadStrains() {
+            const savedStrains = localStorage.getItem('strains');
+            if (savedStrains) {
+                strains = JSON.parse(savedStrains);
+            } else {
+                strains = defaultStrains;
+            }
+            displayStrains();
+        }
+
+        // Display strains list
+        function displayStrains() {
+            const strainList = document.getElementById('strainList');
+            strainList.innerHTML = ''; // Clear current list
+
+            strains.forEach((strain, index) => {
+                const strainDiv = document.createElement('div');
+                strainDiv.classList.add('strain-item');
+                strainDiv.innerHTML = `
+                    <strong>${strain.name}</strong><br>
+                    <label>Code: </label><input type="text" value="${strain.code}" onchange="updateStrainCode(${index}, this.value)"><br>
+                    <label>Description: </label><input type="text" value="${strain.description}" onchange="updateStrainDescription(${index}, this.value)"><br>
+                    <button class="btn" onclick="deleteStrain(${index})">Delete</button>
+                `;
+                strainList.appendChild(strainDiv);
+            });
+        }
+
+        // Filter strains based on search input
+        function filterStrains() {
+            const searchTerm = document.getElementById('searchStrain').value.toLowerCase();
+            const filteredStrains = strains.filter(strain => strain.name.toLowerCase().includes(searchTerm));
+            displayFilteredStrains(filteredStrains);
+        }
+
+        // Display filtered strains
+        function displayFilteredStrains(filteredStrains) {
+            const strainList = document.getElementById('strainList');
+            strainList.innerHTML = '';
+
+            filteredStrains.forEach((strain, index) => {
+                const strainDiv = document.createElement('div');
+                strainDiv.classList.add('strain-item');
+                strainDiv.innerHTML = `
+                    <strong>${strain.name}</strong><br>
+                    <label>Code: </label><input type="text" value="${strain.code}" onchange="updateStrainCode(${index}, this.value)"><br>
+                    <label>Description: </label><input type="text" value="${strain.description}" onchange="updateStrainDescription(${index}, this.value)"><br>
+                    <button class="btn" onclick="deleteStrain(${index})">Delete</button>
+                `;
+                strainList.appendChild(strainDiv);
+            });
+        }
+
+        // Update strain code
+        function updateStrainCode(index, newCode) {
+            strains[index].code = newCode;
+            saveStrains();
+        }
+
+        // Update strain description
+        function updateStrainDescription(index, newDescription) {
+            strains[index].description = newDescription;
+            saveStrains();
+        }
+
+        // Delete strain
+        function deleteStrain(index) {
+            strains.splice(index, 1);
+            saveStrains();
+            displayStrains();
+        }
+
+        // Add new strain
+        function addNewStrain() {
+            const newStrainName = document.getElementById('newStrainName').value;
+            if (newStrainName) {
+                const newCode = generateCode(newStrainName);
+                const newStrain = { name: newStrainName, code: newCode, description: 'New strain description.' };
+                strains.push(newStrain);
+                saveStrains();
+                displayStrains();
+                document.getElementById('newStrainName').value = ''; // Clear input field
+            }
+        }
+
+        // Generate a code for the new strain (simplified logic)
+        function generateCode(strainName) {
+            const timestamp = new Date().toISOString().split('T')[0].replace(/-/g, '');
+            return `${strainName.substring(0, 3).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}-${timestamp}`;
+        }
+
+        // Save strains
+              // Save strains to localStorage
+        function saveStrains() {
+            localStorage.setItem('strains', JSON.stringify(strains));
+        }
+
+        // Load strains when the page is loaded
+        window.onload = loadStrains;
+    </script>
+</body>
+</html>
