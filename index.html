@@ -6,222 +6,122 @@
     <title>Strain Tracker</title>
     <style>
         body {
+            font-family: Arial, sans-serif;
             background-color: #121212;
             color: #ffffff;
-            font-family: 'Courier New', Courier, monospace;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            margin: 20px;
         }
-
-        h1 {
-            font-size: 2rem;
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        input, button {
-            background-color: #1e1e1e;
-            color: #ffffff;
-            border: 1px solid #444;
-            padding: 10px;
-            margin: 5px;
-            font-size: 1rem;
-        }
-
-        input:focus, button:hover {
-            outline: none;
-            background-color: #333;
-        }
-
-        .strain-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid #333;
-            padding: 10px;
-        }
-
-        .strain-symbol {
-            font-size: 1.5rem;
-            margin-right: 10px;
-        }
-
         .container {
-            width: 90%;
-            max-width: 800px;
+            max-width: 600px;
             margin: 0 auto;
-            text-align: left;
+            padding: 20px;
+            background-color: #1e1e1e;
+            border-radius: 8px;
         }
-
-        .strain-list {
+        h1 {
+            text-align: center;
+        }
+        button {
+            background-color: #3b82f6;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #2563eb;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #333;
+            background-color: #1e1e1e;
+            color: white;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
             margin-top: 20px;
         }
-
-        .strain-list div {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        th, td {
+            border: 1px solid #333;
+            padding: 8px;
+            text-align: center;
         }
-
-        #searchInput {
-            width: 100%;
-        }
-
-        .add-button {
-            display: block;
-            margin: 20px auto;
+        th {
+            background-color: #333;
         }
     </style>
 </head>
 <body>
-    <h1>Strain Tracker</h1>
     <div class="container">
-        <input type="text" id="searchInput" placeholder="Search strains..." oninput="filterStrains()">
-        <div id="strainList" class="strain-list"></div>
-        <button class="add-button" onclick="addStrain()">Add New Strain</button>
+        <h1>Strain Tracker</h1>
+        <input type="text" id="strainName" placeholder="Enter strain name">
+        <button onclick="addStrain()">Add Strain</button>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Strain Name</th>
+                    <th>Code</th>
+                    <th>Date Added</th>
+                </tr>
+            </thead>
+            <tbody id="strainTable"></tbody>
+        </table>
     </div>
 
     <script>
-        const strains = [
-            { id: 1, name: 'Peach Exodus Cheese #1', code: 'PEC-FN78', symbol: '🍑' },
-            { id: 2, name: 'Peach Exodus Cheese #2', code: 'PEC-VL65', symbol: '🍑' },
-            { id: 3, name: 'Peach Exodus Cheese #3', code: 'PEC-RW48', symbol: '🍑' },
-            { id: 4, name: 'Random Seed #1', code: 'RND-SP34', symbol: '❓' },
-            { id: 5, name: 'Random Seed #2', code: 'RND-BL92', symbol: '❓' },
-            { id: 6, name: 'Random Seed #3', code: 'RND-LX73', symbol: '❓' },
-            { id: 7, name: 'Blueberry Diesel', code: 'BBD-DF45', symbol: '🔵' },
-            { id: 8, name: 'Original Exodus Cheese #1', code: 'OEC-MP81', symbol: '🧀' },
-            { id: 9, name: 'Original Exodus Cheese #2', code: 'OEC-VG47', symbol: '🧀' },
-            { id: 10, name: 'Original Exodus Cheese #3', code: 'OEC-ZB13', symbol: '🧀' },
-            // Add all other strains here, numbered consecutively up to #59
-        ];
+        let strainNumber = 1; // Tracks the numbering for the current strain
+        let lastStrainName = ""; // Tracks the last entered strain name
 
-        function displayStrains() {
-            const strainList = document.getElementById('strainList');
-            strainList.innerHTML = '';
-
-            for (const strain of strains) {
-                const strainItem = document.createElement('div');
-                strainItem.classList.add('strain-item');
-                strainItem.innerHTML = `
-                    <span class="strain-symbol">${strain.symbol}</span>
-                    <input type="text" value="${strain.name}" onchange="editStrain(${strain.id}, 'name', this.value)">
-                    <input type="text" value="${strain.code}" onchange="editStrain(${strain.id}, 'code', this.value)">
-                    <button onclick="deleteStrain(${strain.id})">Delete</button>
-                `;
-                strainList.appendChild(strainItem);
+        function generateRandomCode() {
+            const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            let randomCode = "";
+            for (let i = 0; i < 4; i++) {
+                randomCode += characters.charAt(Math.floor(Math.random() * characters.length));
             }
-        }
-
-        function editStrain(id, field, value) {
-            const strain = strains.find(strain => strain.id === id);
-            if (strain) {
-                strain[field] = value;
-                saveStrains();
-            }
-        }
-
-        function deleteStrain(id) {
-            const index = strains.findIndex(strain => strain.id === id);
-            if (index !== -1) {
-                strains.splice(index, 1);
-                saveStrains();
-            }
+            return randomCode;
         }
 
         function addStrain() {
-            const newStrain = {
-                id: strains.length + 1,
-                name: 'New Strain',
-                code: `NEW-${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
-                symbol: '🌱'
-            };
-            strains.push(newStrain);
-            saveStrains();
-        }
+            const strainNameInput = document.getElementById("strainName").value.trim();
 
-        function filterStrains() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const filteredStrains = strains.filter(strain => 
-                strain.name.toLowerCase().includes(searchTerm) ||
-                strain.code.toLowerCase().includes(searchTerm)
-            );
-            const strainList = document.getElementById('strainList');
-            strainList.innerHTML = '';
-
-            for (const strain of filteredStrains) {
-                const strainItem = document.createElement('div');
-                strainItem.classList.add('strain-item');
-                strainItem.innerHTML = `
-                    <span class="strain-symbol">${strain.symbol}</span>
-                    <input type="text" value="${strain.name}" onchange="editStrain(${strain.id}, 'name', this.value)">
-                    <input type="text" value="${strain.code}" onchange="editStrain(${strain.id}, 'code', this.value)">
-                    <button onclick="deleteStrain(${strain.id})">Delete</button>
-                `;
-                strainList.appendChild(strainItem);
+            if (!strainNameInput) {
+                alert("Please enter a strain name.");
+                return;
             }
-        }
 
-        function saveStrains() {
-            localStorage.setItem('strains', JSON.stringify(strains));
-            displayStrains();
-        }
-
-        function loadStrains() {
-            const savedStrains = localStorage.getItem('strains');
-            if (savedStrains) {
-                strains.length = 0;
-                strains.push(...JSON.parse(savedStrains));
+            // Reset numbering if strain name changes
+            if (strainNameInput !== lastStrainName) {
+                strainNumber = 1;
+                lastStrainName = strainNameInput;
             }
-            displayStrains();
+
+            // Generate a unique code
+            const prefix = strainNameInput.split(" ").map(word => word[0]).join("").toUpperCase().substring(0, 3);
+            const randomCode = generateRandomCode();
+            const fullCode = `${prefix}-${randomCode}`;
+
+            // Get the current date
+            const dateAdded = new Date().toLocaleDateString();
+
+            // Add to the table
+            const table = document.getElementById("strainTable");
+            const newRow = document.createElement("tr");
+            newRow.innerHTML = `
+                <td>${strainNumber}</td>
+                <td>${strainNameInput}</td>
+                <td>${fullCode}</td>
+                <td>${dateAdded}</td>
+            `;
+            table.appendChild(newRow);
+
+            strainNumber++; // Increment the number for the current strain
         }
-        <div class="container">
-    <h2>Add New Strain</h2>
-    <input type="text" id="newStrainName" placeholder="Enter strain name">
-    <button onclick="generateCode()">Generate Code</button>
-    <div id="generatedCode" style="margin-top: 10px; font-weight: bold;"></div>
-</div>
-
-<script>
-    function generateRandomCode() {
-        const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        let randomCode = "";
-        for (let i = 0; i < 4; i++) {
-            randomCode += characters.charAt(Math.floor(Math.random() * characters.length));
-        }
-        return randomCode;
-    }
-
-    function generateCode() {
-        const strainName = document.getElementById("newStrainName").value.trim();
-        if (!strainName) {
-            alert("Please enter a strain name.");
-            return;
-        }
-        
-        // Extract the first three letters of the strain name for the prefix
-        const prefix = strainName.split(" ").map(word => word[0]).join("").toUpperCase().substring(0, 3);
-
-        // Generate a random 4-character code
-        const randomCode = generateRandomCode();
-
-        // Combine prefix and code
-        const fullCode = `${prefix}-${randomCode}`;
-
-        // Display the generated code
-        document.getElementById("generatedCode").innerText = `Generated Code: ${fullCode}`;
-
-        // Add to strains array (optional)
-        strains.push({ id: strains.length + 1, name: strainName, code: fullCode, symbol: "🌱" });
-        saveStrains();
-        displayStrains();
-    }
-
-        window.onload = loadStrains;
     </script>
 </body>
 </html>
