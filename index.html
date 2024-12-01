@@ -54,6 +54,17 @@
         th {
             background-color: #333;
         }
+        .action-buttons {
+            display: flex;
+            justify-content: space-evenly;
+        }
+        .action-buttons button {
+            background-color: #f44336;
+            padding: 5px 10px;
+        }
+        .edit-button {
+            background-color: #ff9800;
+        }
     </style>
 </head>
 <body>
@@ -68,6 +79,7 @@
                     <th>Strain Name</th>
                     <th>Code</th>
                     <th>Date Added</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody id="strainTable"></tbody>
@@ -117,10 +129,38 @@
                 <td>${strainNameInput}</td>
                 <td>${fullCode}</td>
                 <td>${dateAdded}</td>
+                <td class="action-buttons">
+                    <button class="edit-button" onclick="editStrain(this)">Edit</button>
+                    <button onclick="deleteStrain(this)">Delete</button>
+                </td>
             `;
             table.appendChild(newRow);
 
             strainNumber++; // Increment the number for the current strain
+        }
+
+        function deleteStrain(button) {
+            // Remove the row from the table
+            const row = button.closest("tr");
+            row.remove();
+        }
+
+        function editStrain(button) {
+            // Get the row to be edited
+            const row = button.closest("tr");
+            const strainNameCell = row.cells[1];
+            const strainName = strainNameCell.textContent;
+
+            // Prompt user for a new strain name
+            const newStrainName = prompt("Edit Strain Name:", strainName);
+
+            if (newStrainName && newStrainName.trim() !== strainName) {
+                // Update the strain name and regenerate the code
+                strainNameCell.textContent = newStrainName.trim();
+                const newCode = generateRandomCode();
+                row.cells[2].textContent = `${newStrainName.trim().substring(0, 3).toUpperCase()}-${newCode}`;
+                row.cells[3].textContent = new Date().toLocaleDateString();
+            }
         }
     </script>
 </body>
