@@ -179,6 +179,47 @@
             }
             displayStrains();
         }
+        <div class="container">
+    <h2>Add New Strain</h2>
+    <input type="text" id="newStrainName" placeholder="Enter strain name">
+    <button onclick="generateCode()">Generate Code</button>
+    <div id="generatedCode" style="margin-top: 10px; font-weight: bold;"></div>
+</div>
+
+<script>
+    function generateRandomCode() {
+        const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        let randomCode = "";
+        for (let i = 0; i < 4; i++) {
+            randomCode += characters.charAt(Math.floor(Math.random() * characters.length));
+        }
+        return randomCode;
+    }
+
+    function generateCode() {
+        const strainName = document.getElementById("newStrainName").value.trim();
+        if (!strainName) {
+            alert("Please enter a strain name.");
+            return;
+        }
+        
+        // Extract the first three letters of the strain name for the prefix
+        const prefix = strainName.split(" ").map(word => word[0]).join("").toUpperCase().substring(0, 3);
+
+        // Generate a random 4-character code
+        const randomCode = generateRandomCode();
+
+        // Combine prefix and code
+        const fullCode = `${prefix}-${randomCode}`;
+
+        // Display the generated code
+        document.getElementById("generatedCode").innerText = `Generated Code: ${fullCode}`;
+
+        // Add to strains array (optional)
+        strains.push({ id: strains.length + 1, name: strainName, code: fullCode, symbol: "🌱" });
+        saveStrains();
+        displayStrains();
+    }
 
         window.onload = loadStrains;
     </script>
