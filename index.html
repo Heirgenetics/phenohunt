@@ -97,11 +97,11 @@
 
             // Reset numbering if strain name changes
             if (strainNameInput !== lastStrainName) {
-                strainNumber = 1;
-                lastStrainName = strainNameInput;
+                strainNumber = 1; // Reset to 1
+                lastStrainName = strainNameInput; // Set new strain name
             }
 
-            // Generate a unique code
+            // Generate a unique code for the strain
             const prefix = strainNameInput.split(" ").map(word => word[0]).join("").toUpperCase().substring(0, 3);
             const randomCode = generateRandomCode();
             const fullCode = `${prefix}-${randomCode}`;
