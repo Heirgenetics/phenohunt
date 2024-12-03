@@ -1,202 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Strain Tracker</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #121212;
-            color: #ffffff;
-            margin: 20px;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #1e1e1e;
-            border-radius: 8px;
-        }
-        h1 {
-            text-align: center;
-        }
-        button {
-            background-color: #3b82f6;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #2563eb;
-        }
-        input, select {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border: 1px solid #333;
-            background-color: #1e1e1e;
-            color: white;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            border: 1px solid #333;
-            padding: 8px;
-            text-align: center;
-        }
-        th {
-            background-color: #333;
-        }
-        .action-buttons {
-            display: flex;
-            justify-content: space-evenly;
-        }
-        .action-buttons button {
-            background-color: #f44336;
-            padding: 5px 10px;
-        }
-        .edit-button {
-            background-color: #ff9800;
-        }
-        .phenotype {
-            font-style: italic;
-            color: #a3a3a3;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strain Phenotype Tracker</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Orbitron', sans-serif;
+      background-color: #000;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+    }
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
+    h1 {
+      font-size: 3rem;
+      margin: 1rem 0;
+      text-align: center;
+      color: #00ffcc;
+    }
+    p.description {
+      margin: 1rem;
+      text-align: center;
+      font-size: 1.2rem;
+      max-width: 800px;
+      color: #ccc;
+    }
+    .form-container {
+      margin: 2rem;
+      text-align: center;
+    }
+    input[type="text"] {
+      padding: 0.5rem;
+      font-size: 1rem;
+      width: 300px;
+      margin-right: 0.5rem;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      cursor: pointer;
+      background-color: #00ffcc;
+      border: none;
+      color: #000;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #008b66;
+    }
+    .results-container {
+      margin-top: 2rem;
+      width: 80%;
+      max-width: 800px;
+    }
+    .result-item {
+      background: #111;
+      border: 1px solid #333;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 5px;
+      color: #00ffcc;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Strain Tracker</h1>
-        <input type="text" id="strainName" placeholder="Enter strain name">
-        <button onclick="addStrain()">Add Strain</button>
-        <table>
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Strain Name</th>
-                    <th>Code</th>
-                    <th>Phenotypic Traits</th>
-                    <th>Date Added</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="strainTable"></tbody>
-        </table>
-    </div>
+  <h1>Strain Phenotype Tracker</h1>
+  <p class="description">
+    Enter a strain name to automatically generate a strain code, phenotype code, and timestamp. 
+    The counter resets for each new strain, helping you track phenotypes systematically.
+  </p>
+  
+  <div class="form-container">
+    <input id="strainInput" type="text" placeholder="Enter Strain Name" />
+    <button onclick="addStrain()">Add Strain</button>
+  </div>
 
-    <script>
-        let strainNumber = 1; // Tracks the numbering for the current strain
-        let lastStrainName = ""; // Tracks the last entered strain name
+  <div class="results-container" id="results"></div>
 
-        // Phenotypic traits explanations for random codes
-        const phenotypicTraits = {
-            "A1": "Strong bud structure, thick resin coverage.",
-            "B2": "High yield with balanced THC/CBD levels.",
-            "C3": "Fragrant with sweet and floral aroma.",
-            "D4": "Fast flowering, resistant to pests and diseases.",
-            "E5": "Dense buds with earthy aroma.",
-            "F6": "Vibrant color, compact growth.",
-            "G7": "Lively aroma, energizing effects.",
-            "H8": "High THC content, potent effects."
-        };
+  <script>
+    const strains = {}; // Object to track strains and counts
 
-        function generateRandomCode() {
-            const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-            let randomCode = "";
-            for (let i = 0; i < 4; i++) {
-                randomCode += characters.charAt(Math.floor(Math.random() * characters.length));
-            }
-            return randomCode;
-        }
+    function addStrain() {
+      const strainName = document.getElementById("strainInput").value.trim();
+      if (!strainName) {
+        alert("Please enter a strain name.");
+        return;
+      }
 
-        function addStrain() {
-            const strainNameInput = document.getElementById("strainName").value.trim();
+      // Initialize or increment the counter for the strain
+      if (!strains[strainName]) {
+        strains[strainName] = 1;
+      } else {
+        strains[strainName]++;
+      }
 
-            if (!strainNameInput) {
-                alert("Please enter a strain name.");
-                return;
-            }
+      // Generate codes
+      const strainCode = `STR-${strainName.toUpperCase().slice(0, 3)}-${strains[strainName].toString().padStart(3, '0')}`;
+      const phenotypeCode = `PH-${strainName.toUpperCase().slice(0, 3)}-${Date.now().toString().slice(-5)}`;
+      const timestamp = new Date().toLocaleString();
 
-            // Reset numbering if strain name changes
-            if (strainNameInput !== lastStrainName) {
-                strainNumber = 1; // Reset to 1
-                lastStrainName = strainNameInput; // Set new strain name
-            }
+      // Display the results
+      const resultsContainer = document.getElementById("results");
+      const resultItem = document.createElement("div");
+      resultItem.classList.add("result-item");
+      resultItem.innerHTML = `
+        <strong>Strain Name:</strong> ${strainName}<br />
+        <strong>Strain Code:</strong> ${strainCode}<br />
+        <strong>Phenotype Code:</strong> ${phenotypeCode}<br />
+        <strong>Date & Time:</strong> ${timestamp}
+      `;
+      resultsContainer.appendChild(resultItem);
 
-            // Generate a unique code for the strain
-            const prefix = strainNameInput.split(" ").map(word => word[0]).join("").toUpperCase().substring(0, 3);
-            const randomCode = generateRandomCode();
-            const fullCode = `${prefix}-${randomCode}`;
-
-            // Get the phenotypic traits based on the generated code (use last 2 characters of the code)
-            const phenotypeKey = fullCode.slice(4, 6); // Take the 5th and 6th characters of the code
-            const phenotypeDescription = phenotypicTraits[phenotypeKey] || "No description available.";
-
-            // Get the current date
-            const dateAdded = new Date().toLocaleDateString();
-
-            // Add to the table
-            const table = document.getElementById("strainTable");
-            const newRow = document.createElement("tr");
-            newRow.innerHTML = `
-                <td>${strainNumber}</td>
-                <td>${strainNameInput}</td>
-                <td>${fullCode}</td>
-                <td class="phenotype">${phenotypeDescription}</td>
-                <td>${dateAdded}</td>
-                <td class="action-buttons">
-                    <button class="edit-button" onclick="editStrain(this)">Edit</button>
-                    <button onclick="deleteStrain(this)">Delete</button>
-                </td>
-            `;
-            table.appendChild(newRow);
-
-            strainNumber++; // Increment the number for the current strain
-        }
-
-        function deleteStrain(button) {
-            // Remove the row from the table
-            const row = button.closest("tr");
-            row.remove();
-        }
-
-        function editStrain(button) {
-            // Get the row to be edited
-            const row = button.closest("tr");
-            const strainNameCell = row.cells[1];
-            const strainCodeCell = row.cells[2];
-            const phenotypeCell = row.cells[3];
-
-            const strainName = strainNameCell.textContent;
-            const strainCode = strainCodeCell.textContent;
-            const phenotype = phenotypeCell.textContent;
-
-            // Prompt user for new values
-            const newStrainName = prompt("Edit Strain Name:", strainName);
-            if (newStrainName && newStrainName.trim() !== strainName) {
-                strainNameCell.textContent = newStrainName.trim();
-            }
-
-            // Re-generate the code based on the new strain name
-            const prefix = newStrainName.trim().split(" ").map(word => word[0]).join("").toUpperCase().substring(0, 3);
-            const randomCode = generateRandomCode();
-            const fullCode = `${prefix}-${randomCode}`;
-            strainCodeCell.textContent = fullCode;
-
-            // Get the phenotypic traits based on the regenerated code
-            const phenotypeKey = fullCode.slice(4, 6); // Take the 5th and 6th characters of the code
-            phenotypeCell.textContent = phenotypicTraits[phenotypeKey] || "No description available.";
-
-            // Update the date added
-            row.cells[4].textContent = new Date().toLocaleDateString();
-        }
-    </script>
+      // Clear input field
+      document.getElementById("strainInput").value = '';
+    }
+  </script>
 </body>
 </html>
